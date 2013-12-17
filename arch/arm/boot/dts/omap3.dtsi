@@ -371,11 +371,13 @@
 			dma-names = "tx", "rx";
 		};
 
-		mmu_isp: mmu@480bd400 {
+		mmu_isp: mmu_isp@480bd400 {
 			compatible = "ti,omap3-mmu-isp";
 			ti,hwmods = "mmu_isp";
 			reg = <0x480bd400 0x80>;
 			interrupts = <8>;
+			ti,#tlb-entries = <8>;
+			dma-window = <0 0xfffff000>;	/* IOVA start & length */
 		};
 
 		wdt2: wdt@48314000 {
