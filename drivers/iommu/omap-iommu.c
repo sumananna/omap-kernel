@@ -23,6 +23,9 @@
 #include <linux/spinlock.h>
 #include <linux/io.h>
 #include <linux/pm_runtime.h>
+#include <linux/of.h>
+#include <linux/of_iommu.h>
+#include <linux/of_irq.h>
 
 #include <asm/cacheflush.h>
 
@@ -1171,20 +1174,30 @@ static int omap_iommu_probe(struct platform_device *pdev)
 {
 	int err = -ENODEV;
 	int irq;
+	size_t len;
 	struct omap_iommu *obj;
 	struct resource *res;
 	struct iommu_platform_data *pdata = pdev->dev.platform_data;
+	struct device_node *of = pdev->dev.of_node;
 
 	obj = kzalloc(sizeof(*obj) + MMU_REG_SIZE, GFP_KERNEL);
 	if (!obj)
 		return -ENOMEM;
 
-	obj->nr_tlb_entries = pdata->nr_tlb_entries;
-	obj->name = pdata->name;
+	if (of) {
+		obj->name = of->name;
+		of_property_read_u32(of, "ti,#tlb-entries",
+				     &obj->nr_tlb_entries);
+		of_get_dma_window(of, NULL, 0, NULL, &obj->da_start, &len);
+		obj->da_end = obj->da_start + len;
+	} else {
+		obj->nr_tlb_entries = pdata->nr_tlb_entries;
+		obj->name = pdata->name;
+		obj->da_start = pdata->da_start;
+		obj->da_end = pdata->da_end;
+	}
 	obj->dev = &pdev->dev;
 	obj->ctx = (void *)obj + sizeof(*obj);
-	obj->da_start = pdata->da_start;
-	obj->da_end = pdata->da_end;
 
 	spin_lock_init(&obj->iommu_lock);
 	mutex_init(&obj->mmap_lock);
@@ -1210,7 +1223,11 @@ static int omap_iommu_probe(struct platform_device *pdev)
 		goto err_ioremap;
 	}
 
-	irq = platform_get_irq(pdev, 0);
+	if (of)
+		irq = irq_of_parse_and_map(of, 0);
+	else
+		irq = platform_get_irq(pdev, 0);
+
 	if (irq < 0) {
 		err = -ENODEV;
 		goto err_irq;
@@ -1260,11 +1277,20 @@ static int omap_iommu_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#if defined(CONFIG_OF)
+static struct of_device_id omap_iommu_of_match[] = {
+	{ .compatible = "ti,omap3-mmu-isp" },
+	{},
+};
+MODULE_DEVICE_TABLE(of, omap_iommu_of_match);
+#endif
+
 static struct platform_driver omap_iommu_driver = {
 	.probe	= omap_iommu_probe,
 	.remove	= omap_iommu_remove,
 	.driver	= {
 		.name	= "omap-iommu",
+		.of_match_table = omap_iommu_of_match,
 	},
 };
 
