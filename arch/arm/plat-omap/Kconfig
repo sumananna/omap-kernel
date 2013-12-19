@@ -62,6 +62,7 @@ config OMAP_RESET_CLOCKS
 
 config OMAP_IOMMU_IVA2
 	bool
+	default y
 
 config OMAP_MPU_TIMER
 	bool "Use mpu timer"
