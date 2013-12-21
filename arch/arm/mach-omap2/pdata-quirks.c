@@ -16,12 +16,14 @@
 #include <linux/wl12xx.h>
 
 #include <linux/platform_data/pinctrl-single.h>
+#include <linux/platform_data/iommu-omap.h>
 
 #include "am35xx.h"
 #include "common.h"
 #include "common-board-devices.h"
 #include "dss-common.h"
 #include "control.h"
+#include "omap_device.h"
 
 struct pdata_init {
 	const char *compatible;
@@ -175,6 +177,12 @@ void omap_pcs_legacy_init(int irq, void (*rearm)(void))
 	pcs_pdata.rearm = rearm;
 }
 
+static struct iommu_platform_data iommu_pdata = {
+	.reset_name = "mmu",
+	.assert_reset = omap_device_assert_hardreset,
+	.deassert_reset = omap_device_deassert_hardreset,
+};
+
 /*
  * GPIOs for TWL are initialized by the I2C bus and need custom
  * handing until DSS has device tree bindings.
@@ -210,6 +218,7 @@ struct of_dev_auxdata omap_auxdata_lookup[] __initdata = {
 #ifdef CONFIG_ARCH_OMAP3
 	OF_DEV_AUXDATA("ti,omap3-padconf", 0x48002030, "48002030.pinmux", &pcs_pdata),
 	OF_DEV_AUXDATA("ti,omap3-padconf", 0x48002a00, "48002a00.pinmux", &pcs_pdata),
+	OF_DEV_AUXDATA("ti,omap3-mmu-iva", 0x5d000000, "5d000000.mmu", &iommu_pdata),
 	/* Only on am3517 */
 	OF_DEV_AUXDATA("ti,davinci_mdio", 0x5c030000, "davinci_mdio.0", NULL),
 	OF_DEV_AUXDATA("ti,am3517-emac", 0x5c000000, "davinci_emac.0",
