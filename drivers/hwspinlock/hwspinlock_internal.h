@@ -32,11 +32,15 @@ struct hwspinlock_device;
  * @relax:   optional, platform-specific relax handler, called by hwspinlock
  *	     core while spinning on a lock, between two successive
  *	     invocations of @trylock. may _not_ sleep.
+ * @of_xlate: platform-specific hwlock specifier translate function, to
+ *	      return the relative index of the lock within a bank
  */
 struct hwspinlock_ops {
 	int (*trylock)(struct hwspinlock *lock);
 	void (*unlock)(struct hwspinlock *lock);
 	void (*relax)(struct hwspinlock *lock);
+	int (*of_xlate)(struct hwspinlock_device *bank,
+			const struct of_phandle_args *hwlock_spec);
 };
 
 /**
