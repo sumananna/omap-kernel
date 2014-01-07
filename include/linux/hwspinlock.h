@@ -26,6 +26,8 @@
 #define HWLOCK_IRQ	0x02	/* Disable interrupts, don't save state */
 
 struct device;
+struct device_node;
+struct of_phandle_args;
 struct hwspinlock;
 struct hwspinlock_device;
 struct hwspinlock_ops;
@@ -60,11 +62,16 @@ struct hwspinlock_pdata {
 
 #if defined(CONFIG_HWSPINLOCK) || defined(CONFIG_HWSPINLOCK_MODULE)
 
+int of_hwspin_lock_simple_xlate(struct hwspinlock_device *bank,
+				const struct of_phandle_args *hwlock_spec);
+int of_hwspin_lock_get_num_locks(struct device_node *dn);
 int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
 		const struct hwspinlock_ops *ops, int base_id, int num_locks);
 int hwspin_lock_unregister(struct hwspinlock_device *bank);
 struct hwspinlock *hwspin_lock_request(void);
 struct hwspinlock *hwspin_lock_request_specific(unsigned int id);
+struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
+		const char *propname, int index);
 int hwspin_lock_free(struct hwspinlock *hwlock);
 int hwspin_lock_get_id(struct hwspinlock *hwlock);
 int __hwspin_lock_timeout(struct hwspinlock *, unsigned int, int,
@@ -80,9 +87,9 @@ void __hwspin_unlock(struct hwspinlock *, int, unsigned long *);
  * code path get compiled away. This way, if CONFIG_HWSPINLOCK is not
  * required on a given setup, users will still work.
  *
- * The only exception is hwspin_lock_register/hwspin_lock_unregister, with which
- * we _do_ want users to fail (no point in registering hwspinlock instances if
- * the framework is not available).
+ * The only exception is hwspin_lock_register/hwspin_lock_unregister and
+ * associated OF helpers, with which we _do_ want users to fail (no point
+ * in registering hwspinlock instances if the framework is not available).
  *
  * Note: ERR_PTR(-ENODEV) will still be considered a success for NULL-checking
  * users. Others, which care, can still check this with IS_ERR.
@@ -93,6 +100,13 @@ static inline struct hwspinlock *hwspin_lock_request(void)
 }
 
 static inline struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
+{
+	return ERR_PTR(-ENODEV);
+}
+
+static inline
+struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
+						const char *propname, int index)
 {
 	return ERR_PTR(-ENODEV);
 }
