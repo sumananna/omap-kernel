@@ -20,6 +20,7 @@
 
 #include <linux/spinlock.h>
 #include <linux/device.h>
+#include <linux/of.h>
 
 struct hwspinlock_device;
 
@@ -72,6 +73,52 @@ static inline int hwlock_to_id(struct hwspinlock *hwlock)
 	int local_id = hwlock - &hwlock->bank->lock[0];
 
 	return hwlock->bank->base_id + local_id;
+}
+
+/**
+ * of_hwspin_lock_get_base_id() - OF helper to retrieve base id
+ * @dn: device node pointer
+ *
+ * This is an OF helper function that can be called by the underlying
+ * platform-specific implementations, to retrieve the base id for the
+ * set of locks present within a hwspinlock device instance.
+ *
+ * Returns the base id value on success, or an appropriate error code
+ * as returned by the OF layer
+ */
+static inline int of_hwspin_lock_get_base_id(struct device_node *dn)
+{
+	unsigned int val;
+	int ret;
+
+	ret = of_property_read_u32(dn, "hwlock-base-id", &val);
+	return ret ? ret : val;
+}
+
+/**
+ * of_hwspin_lock_get_num_locks() - OF helper to retrieve number of locks
+ * @dn: device node pointer
+ *
+ * This is an OF helper function that can be called by the underlying
+ * platform-specific implementations, to retrieve the number of locks
+ * present within a hwspinlock device instance. The hwlock-num-locks
+ * DT property may be optional for some platforms, while mandatory for
+ * some others, so this function is typically called only by needed
+ * platform-specific implementations.
+ *
+ * Returns a positive number of locks on success, -ENODEV on a value
+ * of zero locks or an appropriate error code as returned by the OF layer
+ */
+static inline int of_hwspin_lock_get_num_locks(struct device_node *dn)
+{
+	unsigned int val;
+	int ret = -ENODEV;
+
+	ret = of_property_read_u32(dn, "hwlock-num-locks", &val);
+	if (!ret)
+		ret = val ? val : -ENODEV;
+
+	return ret;
 }
 
 #endif /* __HWSPINLOCK_HWSPINLOCK_H */
