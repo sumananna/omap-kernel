@@ -803,6 +803,11 @@
 			#thermal-sensor-cells = <1>;
 		};
 	};
+
+	hwspin_test {
+		compatible = "ti,omap5-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
+	};
 };
 
 /include/ "omap54xx-clocks.dtsi"
