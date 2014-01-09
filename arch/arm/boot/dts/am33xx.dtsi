@@ -864,6 +864,11 @@
 			interrupts = <111>;
 		};
 	};
+
+	hwspin_test {
+		compatible = "ti,am33xx-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
+	};
 };
 
 /include/ "am33xx-clocks.dtsi"
