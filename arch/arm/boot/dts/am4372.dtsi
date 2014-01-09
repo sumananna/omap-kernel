@@ -886,6 +886,11 @@
 			};
 		};
 	};
+
+	hwspin_test {
+		compatible = "ti,am43xx-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
+	};
 };
 
 /include/ "am43xx-clocks.dtsi"

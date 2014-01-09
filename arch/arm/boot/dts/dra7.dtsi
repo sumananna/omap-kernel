@@ -1263,6 +1263,11 @@
 			ti,irqs-safe-map = <0>;
 		};
 	};
+
+	hwspin_test {
+		compatible = "ti,dra7-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 251>;
+	};
 };
 
 /include/ "dra7xx-clocks.dtsi"
