@@ -707,4 +707,9 @@
 			dma-names = "tx", "rx";
 		};
 	};
+
+	hwspin_test {
+		compatible = "ti,omap4-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
+	};
 };
