@@ -41,7 +41,6 @@
 #include "omap-pm.h"
 #include "sdrc.h"
 #include "control.h"
-#include "serial.h"
 #include "sram.h"
 #include "cm2xxx.h"
 #include "cm3xxx.h"
@@ -396,7 +395,6 @@ static void __init omap_hwmod_init_postsetup(void)
 
 static void __init __maybe_unused omap_common_late_init(void)
 {
-	omap_mux_late_init();
 	omap2_common_pm_late_init();
 	omap_soc_device_init();
 }
