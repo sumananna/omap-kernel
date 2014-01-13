@@ -28,17 +28,11 @@
 
 #include <linux/irq.h>
 #include <linux/delay.h>
-#include <linux/i2c.h>
 #include <linux/i2c/twl.h>
 #include <linux/i2c-omap.h>
 #include <linux/reboot.h>
 
 #include <asm/proc-fns.h>
-
-#include "i2c.h"
-#include "serial.h"
-
-#include "usb.h"
 
 #define OMAP_INTC_START		NR_IRQS
 
@@ -64,15 +58,6 @@ static inline int omap3_pm_init(void)
 int omap4_pm_init(void);
 #else
 static inline int omap4_pm_init(void)
-{
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_OMAP_MUX
-int omap_mux_late_init(void);
-#else
-static inline int omap_mux_late_init(void)
 {
 	return 0;
 }
@@ -293,6 +278,7 @@ static inline void omap4_cpu_resume(void)
 #endif
 
 void pdata_quirks_init(struct of_device_id *);
+void omap_auxdata_legacy_init(struct device *dev);
 void omap_pcs_legacy_init(int irq, void (*rearm)(void));
 
 struct omap_sdrc_params;
@@ -305,7 +291,7 @@ struct omap_hwmod;
 extern int omap_dss_reset(struct omap_hwmod *);
 
 /* SoC specific clock initializer */
-extern int (*omap_clk_init)(void);
+int omap_clk_init(void);
 
 #endif /* __ASSEMBLER__ */
 #endif /* __ARCH_ARM_MACH_OMAP2PLUS_COMMON_H */
