@@ -941,7 +941,7 @@ static int omap_iommu_probe(struct platform_device *pdev)
 	struct resource *res;
 	struct iommu_platform_data *pdata = pdev->dev.platform_data;
 
-	obj = kzalloc(sizeof(*obj) + MMU_REG_SIZE, GFP_KERNEL);
+	obj = devm_kzalloc(&pdev->dev, sizeof(*obj) + MMU_REG_SIZE, GFP_KERNEL);
 	if (!obj)
 		return -ENOMEM;
 
@@ -958,23 +958,12 @@ static int omap_iommu_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&obj->mmap);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!res) {
-		err = -ENODEV;
-		goto err_mem;
-	}
+	if (!res)
+		return -ENODEV;
 
-	res = request_mem_region(res->start, resource_size(res),
-				 dev_name(&pdev->dev));
-	if (!res) {
-		err = -EIO;
-		goto err_mem;
-	}
-
-	obj->regbase = ioremap(res->start, resource_size(res));
-	if (!obj->regbase) {
-		err = -ENOMEM;
-		goto err_ioremap;
-	}
+	obj->regbase = devm_request_and_ioremap(&pdev->dev, res);
+	if (!obj->regbase)
+		return -ENOMEM;
 
 	irq = platform_get_irq(pdev, 0);
 	if (irq < 0) {
@@ -995,10 +984,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
 
 err_irq:
 	iounmap(obj->regbase);
-err_ioremap:
-	release_mem_region(res->start, resource_size(res));
-err_mem:
-	kfree(obj);
 	return err;
 }
 
@@ -1019,7 +1004,6 @@ static int omap_iommu_remove(struct platform_device *pdev)
 	pm_runtime_disable(obj->dev);
 
 	dev_info(&pdev->dev, "%s removed\n", obj->name);
-	kfree(obj);
 	return 0;
 }
 
