@@ -414,7 +414,7 @@
 			compatible = "ti,omap2-iommu";
 			ti,hwmods = "mmu_isp";
 			reg = <0x480bd400 0x80>;
-			interrupts = <8>;
+			interrupts = <24>;
 			ti,#tlb-entries = <8>;
 			dma-window = <0 0xfffff000>;	/* IOVA start & length */
 		};
