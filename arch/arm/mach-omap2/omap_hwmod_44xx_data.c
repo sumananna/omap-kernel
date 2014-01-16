@@ -2083,12 +2083,6 @@ static struct omap_hwmod_class omap44xx_mmu_hwmod_class = {
 
 /* mmu ipu */
 
-static struct omap_mmu_dev_attr mmu_ipu_dev_attr = {
-	.da_start	= 0x0,
-	.da_end		= 0xfffff000,
-	.nr_tlb_entries = 32,
-};
-
 static struct omap_hwmod omap44xx_mmu_ipu_hwmod;
 static struct omap_hwmod_rst_info omap44xx_mmu_ipu_resets[] = {
 	{ .name = "mmu_cache", .rst_shift = 2 },
@@ -2127,16 +2121,9 @@ static struct omap_hwmod omap44xx_mmu_ipu_hwmod = {
 			.modulemode   = MODULEMODE_HWCTRL,
 		},
 	},
-	.dev_attr	= &mmu_ipu_dev_attr,
 };
 
 /* mmu dsp */
-
-static struct omap_mmu_dev_attr mmu_dsp_dev_attr = {
-	.da_start	= 0x0,
-	.da_end		= 0xfffff000,
-	.nr_tlb_entries = 32,
-};
 
 static struct omap_hwmod omap44xx_mmu_dsp_hwmod;
 static struct omap_hwmod_rst_info omap44xx_mmu_dsp_resets[] = {
@@ -2176,7 +2163,6 @@ static struct omap_hwmod omap44xx_mmu_dsp_hwmod = {
 			.modulemode   = MODULEMODE_HWCTRL,
 		},
 	},
-	.dev_attr	= &mmu_dsp_dev_attr,
 };
 
 /*
