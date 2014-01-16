@@ -461,6 +461,24 @@
 			dma-names = "tx", "rx";
 		};
 
+		mmu_ipu: mmu@55082000 {
+			compatible = "ti,omap4-iommu";
+			ti,hwmods = "mmu_ipu";
+			reg = <0x55082000 0xff>;
+			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
+			ti,#tlb-entries = <32>;
+			dma-window = <0 0xfffff000>;	/* IOVA start & length */
+		};
+
+		mmu_dsp: mmu@4a066000 {
+			compatible = "ti,omap4-iommu";
+			ti,hwmods = "mmu_dsp";
+			reg = <0x4a066000 0xff>;
+			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+			ti,#tlb-entries = <32>;
+			dma-window = <0 0xfffff000>;	/* IOVA start & length */
+		};
+
 		wdt2: wdt@4a314000 {
 			compatible = "ti,omap4-wdt", "ti,omap3-wdt";
 			reg = <0x4a314000 0x80>;
