@@ -1,0 +1,26 @@
+OMAP2+ IOMMU
+
+Required properties:
+- compatible : Should be one of:
+
+               "ti,omap2-iommu" for OMAP2/OMAP3
+               "ti,omap4-iommu" for OMAP4/OMAP5
+
+- ti,hwmods  : Name of the hwmod associated to the IOMMU
+- reg        : Address space for the configuration registers
+- interrupts : Interrupt line
+- dma-window : IOVA start address and length.
+
+Optional properties:
+- ti,#tlb-entries : Number of entries in the translation look-aside buffer
+                    (default: 32)
+
+Example:
+	mmu_isp: mmu_isp@480bd400 {
+		compatible = "ti,omap2-iommu";
+		ti,hwmods = "mmu_isp";
+		reg = <0x480bd400 0x80>;
+		interrupts = <8>;
+		dma-window = <0 0xfffff000>;
+		ti,#tlb-entries = <8>;
+	};
