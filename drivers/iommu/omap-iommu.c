@@ -958,22 +958,18 @@ static int omap_iommu_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&obj->mmap);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	if (!res)
-		return -ENODEV;
-
-	obj->regbase = devm_request_and_ioremap(&pdev->dev, res);
-	if (!obj->regbase)
-		return -ENOMEM;
+	obj->regbase = devm_ioremap_resource(obj->dev, res);
+	if (IS_ERR(obj->regbase))
+		return PTR_ERR(obj->regbase);
 
 	irq = platform_get_irq(pdev, 0);
-	if (irq < 0) {
-		err = -ENODEV;
-		goto err_irq;
-	}
-	err = request_irq(irq, iommu_fault_handler, IRQF_SHARED,
-			  dev_name(&pdev->dev), obj);
+	if (irq < 0)
+		return -ENODEV;
+
+	err = devm_request_irq(obj->dev, irq, iommu_fault_handler, IRQF_SHARED,
+			       dev_name(obj->dev), obj);
 	if (err < 0)
-		goto err_irq;
+		return err;
 	platform_set_drvdata(pdev, obj);
 
 	pm_runtime_irq_safe(obj->dev);
@@ -981,25 +977,13 @@ static int omap_iommu_probe(struct platform_device *pdev)
 
 	dev_info(&pdev->dev, "%s registered\n", obj->name);
 	return 0;
-
-err_irq:
-	iounmap(obj->regbase);
-	return err;
 }
 
 static int omap_iommu_remove(struct platform_device *pdev)
 {
-	int irq;
-	struct resource *res;
 	struct omap_iommu *obj = platform_get_drvdata(pdev);
 
 	iopgtable_clear_entry_all(obj);
-
-	irq = platform_get_irq(pdev, 0);
-	free_irq(irq, obj);
-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-	release_mem_region(res->start, resource_size(res));
-	iounmap(obj->regbase);
 
 	pm_runtime_disable(obj->dev);
 
