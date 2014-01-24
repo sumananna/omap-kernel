@@ -419,13 +419,13 @@
 			dma-window = <0 0xfffff000>;	/* IOVA start & length */
 		};
 
-		mmu_iva: mmu_iva@5d000000 {
+		mmu_iva: mmu@5d000000 {
 			compatible = "ti,omap2-iommu";
-			ti,hwmods = "mmu_iva";
 			reg = <0x5d000000 0x80>;
 			interrupts = <28>;
-			ti,#tlb-entries = <32>;
+			ti,hwmods = "mmu_iva";
 			dma-window = <0x11000000 0xeefff000>;	/* IOVA start & length */
+			status = "disabled";
 		};
 
 		wdt2: wdt@48314000 {
