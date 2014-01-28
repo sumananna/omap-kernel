@@ -24,7 +24,6 @@
 #include "l4_3xxx.h"
 #include <linux/platform_data/asoc-ti-mcbsp.h>
 #include <linux/platform_data/spi-omap2-mcspi.h>
-#include <linux/platform_data/iommu-omap.h>
 #include <linux/platform_data/mailbox-omap.h>
 #include <plat/dmtimer.h>
 
