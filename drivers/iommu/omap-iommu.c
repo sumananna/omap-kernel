@@ -1277,7 +1277,7 @@ static int omap_iommu_add_device(struct device *dev)
 		return -ENOMEM;
 	}
 
-	arch_data->name = kstrdup(np->name, GFP_KERNEL);
+	arch_data->name = kstrdup(dev_name(dev), GFP_KERNEL);
 	dev->archdata.iommu = arch_data;
 
 	of_node_put(np);
