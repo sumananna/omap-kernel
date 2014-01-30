@@ -952,10 +952,13 @@ static int omap_iommu_probe(struct platform_device *pdev)
 
 	if (of) {
 		obj->name = of->name;
+		obj->nr_tlb_entries = 32;
 		err = of_property_read_u32(of, "ti,#tlb-entries",
 					   &obj->nr_tlb_entries);
-		if (err != 0)
-			obj->nr_tlb_entries = 32;
+		if (err && err != -EINVAL)
+			return err;
+		if (obj->nr_tlb_entries != 32 && obj->nr_tlb_entries != 8)
+			return -ENODEV;
 		err = of_get_dma_window(of, NULL, 0, NULL, &obj->da_start, &len);
 		if (err != 0)
 			return err;
