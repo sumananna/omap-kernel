@@ -969,6 +969,9 @@ static int omap_iommu_probe(struct platform_device *pdev)
 		obj->da_start = pdata->da_start;
 		obj->da_end = pdata->da_end;
 	}
+	if (obj->da_end <= obj->da_start)
+		return -ENODEV;
+
 	obj->dev = &pdev->dev;
 	obj->ctx = (void *)obj + sizeof(*obj);
 
