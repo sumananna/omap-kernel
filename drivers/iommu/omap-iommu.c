@@ -951,7 +951,7 @@ static int omap_iommu_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	if (of) {
-		obj->name = of->name;
+		obj->name = dev_name(&pdev->dev);
 		obj->nr_tlb_entries = 32;
 		err = of_property_read_u32(of, "ti,#tlb-entries",
 					   &obj->nr_tlb_entries);
