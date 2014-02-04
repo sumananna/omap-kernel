@@ -527,6 +527,7 @@
 			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "mmu_ipu";
 			dma-window = <0 0xdffff000>;
+			ti,iommu-bus-err-back;
 		};
 
 		keypad: keypad@4ae1c000 {
