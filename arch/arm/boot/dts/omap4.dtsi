@@ -475,6 +475,7 @@
 			interrupts = <GIC_SPI 100 IRQ_TYPE_LEVEL_HIGH>;
 			ti,hwmods = "mmu_ipu";
 			dma-window = <0 0xdffff000>;	/* IOVA start & length */
+			ti,iommu-bus-err-back;
 		};
 
 		wdt2: wdt@4a314000 {
