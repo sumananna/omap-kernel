@@ -1017,6 +1017,7 @@ static int omap_iommu_remove(struct platform_device *pdev)
 static struct of_device_id omap_iommu_of_match[] = {
 	{ .compatible = "ti,omap2-iommu" },
 	{ .compatible = "ti,omap4-iommu" },
+	{ .compatible = "ti,dra7-iommu"	},
 	{},
 };
 MODULE_DEVICE_TABLE(of, omap_iommu_of_match);
