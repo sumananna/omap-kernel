@@ -16,7 +16,7 @@ Optional properties:
 
 Example:
 	/* OMAP3 ISP MMU */
-	mmu_isp: mmu_isp@480bd400 {
+	mmu_isp: mmu@480bd400 {
 		compatible = "ti,omap2-iommu";
 		reg = <0x480bd400 0x80>;
 		interrupts = <24>;
