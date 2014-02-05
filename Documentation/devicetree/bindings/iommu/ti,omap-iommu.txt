@@ -4,6 +4,7 @@ Required properties:
 - compatible : Should be one of,
 		"ti,omap2-iommu" for OMAP2/OMAP3 IOMMU instances
 		"ti,omap4-iommu" for OMAP4/OMAP5 IOMMU instances
+		"ti,dra7-iommu" for DRA7xx IOMMU instances
 - ti,hwmods  : Name of the hwmod associated with the IOMMU instance
 - reg        : Address space for the configuration registers
 - interrupts : Interrupt specifier for the IOMMU instance
