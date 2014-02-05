@@ -13,6 +13,8 @@ Required properties:
 Optional properties:
 - ti,#tlb-entries : Number of entries in the translation look-aside buffer.
                     Should be either 8 or 32 (default: 32)
+- ti,iommu-bus-err-back : Indicates the IOMMU instance supports throwing
+		          back a bus error response on MMU faults.
 
 Example:
 	/* OMAP3 ISP MMU */
