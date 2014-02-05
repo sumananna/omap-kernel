@@ -412,9 +412,9 @@
 
 		mmu_isp: mmu_isp@480bd400 {
 			compatible = "ti,omap2-iommu";
-			ti,hwmods = "mmu_isp";
 			reg = <0x480bd400 0x80>;
 			interrupts = <24>;
+			ti,hwmods = "mmu_isp";
 			ti,#tlb-entries = <8>;
 			dma-window = <0 0xfffff000>;	/* IOVA start & length */
 		};
