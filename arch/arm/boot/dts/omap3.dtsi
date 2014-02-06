@@ -416,7 +416,7 @@
 			interrupts = <24>;
 			ti,hwmods = "mmu_isp";
 			ti,#tlb-entries = <8>;
-			dma-window = <0 0xfffff000>;	/* IOVA start & length */
+			dma-window = <0 0xfffff000>;
 		};
 
 		mmu_iva: mmu@5d000000 {
@@ -424,7 +424,7 @@
 			reg = <0x5d000000 0x80>;
 			interrupts = <28>;
 			ti,hwmods = "mmu_iva";
-			dma-window = <0x11000000 0xeefff000>;	/* IOVA start & length */
+			dma-window = <0x11000000 0xeefff000>;
 			status = "disabled";
 		};
 
