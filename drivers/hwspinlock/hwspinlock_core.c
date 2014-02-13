@@ -659,7 +659,8 @@ EXPORT_SYMBOL_GPL(hwspin_lock_request_specific);
  * lock number is indexed relative to the hwspinlock device, unlike the
  * hwspin_lock_request_specific() which is an absolute lock number.
  *
- * Returns the address of the assigned hwspinlock, or NULL on error
+ * Returns the address of the assigned hwspinlock, or an equivalent
+ * ERR_PTR() on error
  */
 struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
 					const char *propname, int index)
@@ -671,29 +672,20 @@ struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
 
 	ret = of_parse_phandle_with_args(np, propname, "#hwlock-cells", index,
 					 &args);
-	if (ret) {
-		pr_warn("%s: can't parse hwlocks property of node '%s[%d]' ret = %d\n",
-			__func__, np->full_name, index, ret);
-		return NULL;
-	}
+	if (ret)
+		return ERR_PTR(ret);
 
 	mutex_lock(&hwspinlock_tree_lock);
 	list_for_each_entry(bank, &hwspinlock_devices, list)
 		if (bank->dev->of_node == args.np)
 			break;
 	mutex_unlock(&hwspinlock_tree_lock);
-	if (&bank->list == &hwspinlock_devices) {
-		pr_warn("%s: requested hwspinlock device %s is not registered\n",
-			__func__, args.np->full_name);
-		return NULL;
-	}
+	if (&bank->list == &hwspinlock_devices)
+		return ERR_PTR(-EPROBE_DEFER);
 
 	id = bank->ops->of_xlate(bank, &args);
-	if (id < 0 || id >= bank->num_locks) {
-		pr_warn("%s: requested lock %d is either out of range [0, %d] or failed translation\n",
-			__func__, id, bank->num_locks - 1);
-		return NULL;
-	}
+	if (id < 0 || id >= bank->num_locks)
+		return ERR_PTR(-EINVAL);
 
 	id += bank->base_id;
 	return hwspin_lock_request_specific(id);
