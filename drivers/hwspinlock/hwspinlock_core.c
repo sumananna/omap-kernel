@@ -89,7 +89,7 @@ int __hwspin_trylock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
 {
 	int ret;
 
-	BUG_ON(!hwlock);
+	BUG_ON(IS_ERR_OR_NULL(hwlock));
 	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
 
 	/*
@@ -228,7 +228,7 @@ EXPORT_SYMBOL_GPL(__hwspin_lock_timeout);
  */
 void __hwspin_unlock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
 {
-	BUG_ON(!hwlock);
+	BUG_ON(IS_ERR_OR_NULL(hwlock));
 	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
 
 	/*
@@ -439,7 +439,7 @@ static int __hwspin_lock_request(struct hwspinlock *hwlock)
  */
 int hwspin_lock_get_id(struct hwspinlock *hwlock)
 {
-	if (!hwlock) {
+	if (IS_ERR_OR_NULL(hwlock)) {
 		pr_err("invalid hwlock\n");
 		return -EINVAL;
 	}
@@ -459,7 +459,8 @@ EXPORT_SYMBOL_GPL(hwspin_lock_get_id);
  *
  * Should be called from a process context (might sleep)
  *
- * Returns the address of the assigned hwspinlock, or NULL on error
+ * Returns the address of the assigned hwspinlock, or an equivalent ERR_PTR()
+ * on error
  */
 struct hwspinlock *hwspin_lock_request(void)
 {
@@ -473,7 +474,7 @@ struct hwspinlock *hwspin_lock_request(void)
 						0, 1, HWSPINLOCK_UNUSED);
 	if (ret == 0) {
 		pr_warn("a free hwspinlock is not available\n");
-		hwlock = NULL;
+		hwlock = ERR_PTR(-ENXIO);
 		goto out;
 	}
 
@@ -483,7 +484,7 @@ struct hwspinlock *hwspin_lock_request(void)
 	/* mark as used and power up */
 	ret = __hwspin_lock_request(hwlock);
 	if (ret < 0)
-		hwlock = NULL;
+		hwlock = ERR_PTR(ret);
 
 out:
 	mutex_unlock(&hwspinlock_tree_lock);
@@ -502,7 +503,8 @@ EXPORT_SYMBOL_GPL(hwspin_lock_request);
  *
  * Should be called from a process context (might sleep)
  *
- * Returns the address of the assigned hwspinlock, or NULL on error
+ * Returns the address of the assigned hwspinlock, or an equivalent
+ * ERR_PTR() on error
  */
 struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
 {
@@ -515,6 +517,7 @@ struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
 	hwlock = radix_tree_lookup(&hwspinlock_tree, id);
 	if (!hwlock) {
 		pr_warn("hwspinlock %u does not exist\n", id);
+		hwlock = ERR_PTR(-EINVAL);
 		goto out;
 	}
 
@@ -525,14 +528,14 @@ struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
 	ret = radix_tree_tag_get(&hwspinlock_tree, id, HWSPINLOCK_UNUSED);
 	if (ret == 0) {
 		pr_warn("hwspinlock %u is already in use\n", id);
-		hwlock = NULL;
+		hwlock = ERR_PTR(-EBUSY);
 		goto out;
 	}
 
 	/* mark as used and power up */
 	ret = __hwspin_lock_request(hwlock);
 	if (ret < 0)
-		hwlock = NULL;
+		hwlock = ERR_PTR(ret);
 
 out:
 	mutex_unlock(&hwspinlock_tree_lock);
@@ -558,7 +561,7 @@ int hwspin_lock_free(struct hwspinlock *hwlock)
 	struct hwspinlock *tmp;
 	int ret;
 
-	if (!hwlock) {
+	if (IS_ERR_OR_NULL(hwlock)) {
 		pr_err("invalid hwlock\n");
 		return -EINVAL;
 	}

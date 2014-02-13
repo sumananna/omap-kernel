@@ -35,15 +35,15 @@ independent, drivers.
 2. User API
 
   struct hwspinlock *hwspin_lock_request(void);
-   - dynamically assign an hwspinlock and return its address, or NULL
-     in case an unused hwspinlock isn't available. Users of this
+   - dynamically assign a hwspinlock and return its address, or an equivalent
+     ERR_PTR() in case an unused hwspinlock isn't available. Users of this
      API will usually want to communicate the lock's id to the remote core
      before it can be used to achieve synchronization.
      Should be called from a process context (might sleep).
 
   struct hwspinlock *hwspin_lock_request_specific(unsigned int id);
-   - assign a specific hwspinlock id and return its address, or NULL
-     if that hwspinlock is already in use. Usually board code will
+   - assign a specific hwspinlock id and return its address, or an equivalent
+     ERR_PTR() if that hwspinlock is already in use. Usually board code will
      be calling this function in order to reserve specific hwspinlock
      ids for predefined purposes.
      Should be called from a process context (might sleep).
@@ -163,7 +163,7 @@ int hwspinlock_example1(void)
 
 	/* dynamically assign a hwspinlock */
 	hwlock = hwspin_lock_request();
-	if (!hwlock)
+	if (IS_ERR(hwlock))
 		...
 
 	id = hwspin_lock_get_id(hwlock);
@@ -199,7 +199,7 @@ int hwspinlock_example2(void)
 	 * by board init code.
 	 */
 	hwlock = hwspin_lock_request_specific(PREDEFINED_LOCK_ID);
-	if (!hwlock)
+	if (IS_ERR(hwlock))
 		...
 
 	/* try to take it, but don't spin on it */
