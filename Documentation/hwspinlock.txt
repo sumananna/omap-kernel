@@ -50,8 +50,8 @@ independent, drivers.
 
   struct hwspinlock *of_hwspin_lock_request_specific(
 		struct device_node *np,	const char *propname, int index);
-   - assign a specific hwspinlock id and return its address, or NULL
-     if that hwspinlock is already in use. This function is the OF
+   - assign a specific hwspinlock id and return its address, or an equivalent
+     ERR_PTR() if that hwspinlock is already in use. This function is the OF
      equivalent of hwspin_lock_request_specific() function, and provides
      a means for users of the hwspinlock module to request a specific
      hwspinlock using the phandle of the hwspinlock device.

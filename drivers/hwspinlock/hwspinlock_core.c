@@ -722,7 +722,8 @@ EXPORT_SYMBOL_GPL(hwspin_lock_request_specific);
  * lock number is indexed relative to the hwspinlock device, unlike the
  * hwspin_lock_request_specific() which is an absolute lock number.
  *
- * Returns the address of the assigned hwspinlock, or NULL on error
+ * Returns the address of the assigned hwspinlock, or an equivalent
+ * ERR_PTR() on error
  */
 struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
 						   const char *propname,
@@ -736,7 +737,7 @@ struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
 	ret = of_parse_phandle_with_args(np, propname, "#hwlock-cells", index,
 					 &args);
 	if (ret)
-		return NULL;
+		return ERR_PTR(ret);
 
 	mutex_lock(&hwspinlock_tree_lock);
 	list_for_each_entry(bank, &hwspinlock_devices, list)
@@ -744,11 +745,11 @@ struct hwspinlock *of_hwspin_lock_request_specific(struct device_node *np,
 			break;
 	mutex_unlock(&hwspinlock_tree_lock);
 	if (&bank->list == &hwspinlock_devices)
-		return NULL;
+		return ERR_PTR(-EPROBE_DEFER);
 
 	id = bank->ops->of_xlate(bank, &args);
 	if (id < 0 || id >= bank->num_locks)
-		return NULL;
+		return ERR_PTR(-EINVAL);
 
 	id += bank->base_id;
 	return hwspin_lock_request_specific(id);
