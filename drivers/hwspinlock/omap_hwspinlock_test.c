@@ -85,7 +85,7 @@ static int hwspin_lock_test_all_locks(struct platform_device *pdev)
 					 &pdev->dev)->data;
 	for (i = 0; i < max_locks; i++) {
 		hwlock = hwspin_lock_request_specific(i);
-		if (!hwlock) {
+		if (IS_ERR(hwlock)) {
 			pr_err("request lock %d failed\n", i);
 			ret = -EIO;
 			continue;
@@ -125,7 +125,7 @@ static int hwspin_lock_test_all_phandle_locks(struct platform_device *pdev)
 
 	for (i = 0; i < num_locks; i++) {
 		hwlock = of_hwspin_lock_request_specific(np, "hwlocks", i);
-		if (!hwlock) {
+		if (IS_ERR(hwlock)) {
 			pr_err("unable to get hwlock\n");
 			ret = -EINVAL;
 			continue;
