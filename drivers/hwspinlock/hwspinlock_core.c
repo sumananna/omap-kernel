@@ -95,7 +95,7 @@ int __hwspin_trylock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
 {
 	int ret;
 
-	BUG_ON(!hwlock || IS_ERR(hwlock));
+	BUG_ON(IS_ERR_OR_NULL(hwlock));
 	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
 
 	/*
@@ -234,7 +234,7 @@ EXPORT_SYMBOL_GPL(__hwspin_lock_timeout);
  */
 void __hwspin_unlock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
 {
-	BUG_ON(!hwlock || IS_ERR(hwlock));
+	BUG_ON(IS_ERR_OR_NULL(hwlock));
 	BUG_ON(!flags && mode == HWLOCK_IRQSTATE);
 
 	/*
@@ -543,7 +543,7 @@ static int __hwspin_lock_request(struct hwspinlock *hwlock)
  */
 int hwspin_lock_get_id(struct hwspinlock *hwlock)
 {
-	if (!hwlock || IS_ERR(hwlock)) {
+	if (IS_ERR_OR_NULL(hwlock)) {
 		pr_err("invalid hwlock\n");
 		return -EINVAL;
 	}
@@ -710,7 +710,7 @@ int hwspin_lock_free(struct hwspinlock *hwlock)
 	struct hwspinlock *tmp;
 	int ret;
 
-	if (!hwlock || IS_ERR(hwlock)) {
+	if (IS_ERR_OR_NULL(hwlock)) {
 		pr_err("invalid hwlock\n");
 		return -EINVAL;
 	}
