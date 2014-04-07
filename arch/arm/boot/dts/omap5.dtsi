@@ -104,6 +104,11 @@
 		};
 	};
 
+	hwspin_test {
+		compatible = "ti,omap5-hwspinlock-test";
+		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
+	};
+
 	/*
 	 * XXX: Use a flat representation of the OMAP3 interconnect.
 	 * The real OMAP interconnect network is quite complex.
@@ -869,11 +874,6 @@
 
 			#thermal-sensor-cells = <1>;
 		};
-	};
-
-	hwspin_test {
-		compatible = "ti,omap5-hwspinlock-test";
-		hwlocks = <&hwspinlock 3>, <&hwspinlock 9>;
 	};
 };
 

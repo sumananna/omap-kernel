@@ -88,8 +88,13 @@ static int hwspin_lock_test_all_locks(struct platform_device *pdev)
 		hwlock = hwspin_lock_request_specific(i);
 		if (IS_ERR(hwlock)) {
 			pr_err("request lock %d failed\n", i);
-			ret = -EIO;
-			continue;
+			if (PTR_ERR(hwlock) == -EPROBE_DEFER) {
+				pr_err("deferring probe on lock %d\n", i);
+				return PTR_ERR(hwlock);
+			} else {
+				ret = -EIO;
+				continue;
+			}
 		}
 
 		ret1 = hwspin_lock_test(hwlock);
@@ -128,8 +133,13 @@ static int hwspin_lock_test_all_phandle_locks(struct platform_device *pdev)
 		hwlock = of_hwspin_lock_request_specific(np, "hwlocks", i);
 		if (IS_ERR(hwlock)) {
 			pr_err("unable to get hwlock\n");
-			ret = -EINVAL;
-			continue;
+			if (PTR_ERR(hwlock) == -EPROBE_DEFER) {
+				pr_err("deferring probe on lock %d\n", i);
+				return PTR_ERR(hwlock);
+			} else {
+				ret = -EINVAL;
+				continue;
+			}
 		}
 
 		ret1 = hwspin_lock_test(hwlock);
@@ -206,6 +216,8 @@ static int omap_hwspinlock_test_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	int ret = 0;
 
+	pr_err("***%s entered\n", __func__);
+
 	if (!np) {
 		pr_err("invalid node pointer\n");
 		return -EINVAL;
@@ -216,6 +228,11 @@ static int omap_hwspinlock_test_probe(struct platform_device *pdev)
 	if (ret)
 		pr_err("hwspin_lock_test_all_locks failed, ret = %d\n", ret);
 	pr_err("\n***** End - Test All pHandle Locks ****\n");
+
+	if (ret == -EPROBE_DEFER) {
+		pr_err("deferring probe...\n");
+		return ret;
+	}
 
 	pr_err("\n***** Begin - Test All Specific Locks ****\n");
 	ret = hwspin_lock_test_all_locks(pdev);
@@ -259,9 +276,11 @@ static struct platform_driver omap_hwspinlock_test_driver = {
 
 static int __init omap_hwspinlock_test_init(void)
 {
+	pr_err("***%s invoked\n", __func__);
+
 	return platform_driver_register(&omap_hwspinlock_test_driver);
 }
-module_init(omap_hwspinlock_test_init);
+postcore_initcall(omap_hwspinlock_test_init);
 
 static void __exit omap_hwspinlock_test_exit(void)
 {
