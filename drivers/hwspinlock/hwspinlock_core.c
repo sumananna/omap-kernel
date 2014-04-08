@@ -264,6 +264,27 @@ void __hwspin_unlock(struct hwspinlock *hwlock, int mode, unsigned long *flags)
 EXPORT_SYMBOL_GPL(__hwspin_unlock);
 
 /**
+ * of_hwspin_lock_get_base_id() - OF helper to retrieve base id
+ * @dn: device node pointer
+ *
+ * This is an OF helper function that can be called by the underlying
+ * platform-specific implementations, to retrieve the base id for the
+ * set of locks present within a hwspinlock device instance.
+ *
+ * Returns the base id value on success, or an appropriate error code
+ * as returned by the OF layer
+ */
+int of_hwspin_lock_get_base_id(struct device_node *dn)
+{
+	unsigned int val;
+	int ret;
+
+	ret = of_property_read_u32(dn, "hwlock-base-id", &val);
+	return ret ? ret : val;
+}
+EXPORT_SYMBOL_GPL(of_hwspin_lock_get_base_id);
+
+/**
  * of_hwspin_lock_get_num_locks() - OF helper to retrieve number of locks
  * @dn: device node pointer
  *
