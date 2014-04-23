@@ -134,7 +134,8 @@ static int u8500_hsem_probe(struct platform_device *pdev)
 	pm_runtime_enable(&pdev->dev);
 
 	ret = hwspin_lock_register(bank, &pdev->dev, &u8500_hwspinlock_ops,
-						pdata->base_id, num_locks);
+					pdata->base_id, num_locks,
+					pdata->num_reserved_locks);
 	if (ret)
 		goto reg_fail;
 

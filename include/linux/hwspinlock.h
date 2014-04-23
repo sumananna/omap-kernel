@@ -35,6 +35,7 @@ struct hwspinlock_ops;
 /**
  * struct hwspinlock_pdata - platform data for hwspinlock drivers
  * @base_id: base id for this hwspinlock device
+ * @num_reserved_locks: number of reserved locks starting from @base_id
  *
  * hwspinlock devices provide system-wide hardware locks that are used
  * by remote processors that have no other way to achieve synchronization.
@@ -53,11 +54,13 @@ struct hwspinlock_ops;
  *
  * This platform data structure should be used to provide the base id
  * for each device (which is trivially 0 when only a single hwspinlock
- * device exists). It can be shared between different platforms, hence
- * its location.
+ * device exists). It should also be used to provide the number of reserved
+ * locks for non-DT based devices. It can be shared between different
+ * platforms, hence its location.
  */
 struct hwspinlock_pdata {
 	int base_id;
+	int num_reserved_locks;
 };
 
 #if defined(CONFIG_HWSPINLOCK) || defined(CONFIG_HWSPINLOCK_MODULE)
@@ -67,7 +70,8 @@ int of_hwspin_lock_simple_xlate(struct hwspinlock_device *bank,
 int of_hwspin_lock_get_base_id(struct device_node *dn);
 int of_hwspin_lock_get_num_locks(struct device_node *dn);
 int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
-		const struct hwspinlock_ops *ops, int base_id, int num_locks);
+		const struct hwspinlock_ops *ops, int base_id, int num_locks,
+		int num_reserved_locks);
 int hwspin_lock_unregister(struct hwspinlock_device *bank);
 struct hwspinlock *hwspin_lock_request(void);
 struct hwspinlock *hwspin_lock_request_specific(unsigned int id);

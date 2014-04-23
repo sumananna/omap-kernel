@@ -432,6 +432,8 @@ static int hwspinlock_device_add(struct hwspinlock_device *bank)
  * @ops: hwspinlock handlers for this device
  * @base_id: id of the first hardware spinlock in this bank
  * @num_locks: number of hwspinlocks provided by this device
+ * @num_reserved_locks: number of reserved hwspinlocks starting from @base_id
+ *			on this device
  *
  * This function should be called from the underlying platform-specific
  * implementation, to register a new hwspinlock device instance.
@@ -441,13 +443,15 @@ static int hwspinlock_device_add(struct hwspinlock_device *bank)
  * Returns 0 on success, or an appropriate error code on failure
  */
 int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
-		const struct hwspinlock_ops *ops, int base_id, int num_locks)
+		const struct hwspinlock_ops *ops, int base_id, int num_locks,
+		int num_reserved_locks)
 {
 	struct hwspinlock *hwlock;
 	int ret = 0, i;
 
 	if (!bank || !ops || !dev || !num_locks || !ops->trylock ||
-	    !ops->unlock || (dev->of_node && !ops->of_xlate)) {
+	    !ops->unlock || (dev->of_node && !ops->of_xlate) ||
+	    (num_locks < num_reserved_locks)) {
 		pr_err("invalid parameters\n");
 		return -EINVAL;
 	}
@@ -456,6 +460,7 @@ int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
 	bank->ops = ops;
 	bank->base_id = base_id;
 	bank->num_locks = num_locks;
+	bank->num_reserved_locks = num_reserved_locks;
 
 	mutex_lock(&hwspinlock_tree_lock);
 	ret = hwspinlock_device_add(bank);
@@ -468,7 +473,8 @@ int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
 
 		spin_lock_init(&hwlock->lock);
 		hwlock->bank = bank;
-		hwlock->type = HWSPINLOCK_UNUSED;
+		hwlock->type = (i < num_reserved_locks ?
+				HWSPINLOCK_RESERVED : HWSPINLOCK_UNUSED);
 
 		ret = hwspin_lock_register_single(hwlock, base_id + i);
 		if (ret)
@@ -651,7 +657,13 @@ struct hwspinlock *hwspin_lock_request_specific(unsigned int id)
 	/* sanity check (this shouldn't happen) */
 	WARN_ON(hwlock_to_id(hwlock) != id);
 
-	/* make sure this hwspinlock is unused */
+	if (hwlock->type != HWSPINLOCK_RESERVED) {
+		pr_warn("hwspinlock %u is not a reserved lock\n", id);
+		hwlock = NULL;
+		goto out;
+	}
+
+	/* make sure this hwspinlock is an unused reserved lock */
 	ret = radix_tree_tag_get(&hwspinlock_tree, id, hwlock->type);
 	if (ret == 0) {
 		pr_warn("hwspinlock %u is already in use\n", id);

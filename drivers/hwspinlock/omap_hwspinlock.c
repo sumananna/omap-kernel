@@ -88,7 +88,7 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	struct resource *res;
 	void __iomem *io_base;
 	int num_locks, i, ret;
-	int base_id = 0;
+	int base_id = 0, reserved_locks = 0;
 
 	if (!node)
 		return -ENODEV;
@@ -144,7 +144,7 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 		hwlock->priv = io_base + LOCK_BASE_OFFSET + sizeof(u32) * i;
 
 	ret = hwspin_lock_register(bank, &pdev->dev, &omap_hwspinlock_ops,
-						base_id, num_locks);
+					base_id, num_locks, reserved_locks);
 	if (ret)
 		goto reg_fail;
 
