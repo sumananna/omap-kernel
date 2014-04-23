@@ -20,6 +20,7 @@
 #include <linux/init.h>
 #include <linux/err.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
 #include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
@@ -156,6 +157,57 @@ static int hwspin_lock_test_all_phandle_locks(struct platform_device *pdev)
 	return ret;
 }
 
+static int hwspin_lock_test_free_locks(struct platform_device *pdev)
+{
+	int i;
+	int ret = 0, ret1 = 0;
+	int max_locks;
+	struct hwspinlock **hwlock = NULL;
+
+	/*
+	 * TODO: Modify this later for reserved locks, or adjust this
+	 * number accordingly.
+	 */
+	max_locks = (u32)of_match_device(omap_hwspinlock_test_of_match,
+					 &pdev->dev)->data;
+	hwlock = kzalloc(sizeof(*hwlock) * max_locks, GFP_KERNEL);
+	if (!hwlock)
+		return -ENOMEM;
+
+	for (i = 0; i < max_locks; i++) {
+		hwlock[i] = hwspin_lock_request();
+		if (!hwlock[i]) {
+			pr_err("request lock on index %d failed\n", i);
+			ret = -EIO;
+			continue;
+		}
+	}
+
+
+	for (i = 0; i < max_locks; i++) {
+		if (!hwlock[i])
+			continue;
+
+		ret1 = hwspin_lock_test(hwlock[i]);
+		if (ret1) {
+			pr_err("hwspinlock tests failed on index %d lock %d\n",
+				 i, hwspin_lock_get_id(hwlock[i]));
+			ret = ret1;
+			goto free_lock;
+		}
+
+free_lock:
+		ret1 = hwspin_lock_free(hwlock[i]);
+		if (ret1) {
+			pr_err("hwspin_lock_free failed on index %d lock %d\n",
+				 i, hwspin_lock_get_id(hwlock[i]));
+			ret = ret1;
+		}
+	}
+
+	return ret;
+}
+
 static int omap_hwspinlock_test_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
@@ -177,6 +229,12 @@ static int omap_hwspinlock_test_probe(struct platform_device *pdev)
 	if (ret)
 		pr_err("hwspin_lock_test_all_locks failed, ret = %d\n", ret);
 	pr_err("\n***** End - Test All Locks ****\n");
+
+	pr_err("\n***** Begin - Test All Free Locks ****\n");
+	ret = hwspin_lock_test_free_locks(pdev);
+	if (ret)
+		pr_err("hwspin_lock_test_free_locks failed, ret = %d\n", ret);
+	pr_err("\n***** End - Test All Free Locks ****\n");
 
 	return 0;
 }
