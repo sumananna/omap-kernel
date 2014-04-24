@@ -323,6 +323,7 @@
 			reg = <0x480ca000 0x1000>;
 			ti,hwmods = "spinlock";
 			#hwlock-cells = <1>;
+			hwlock-reserved-locks = <16>;
 		};
 
 		wdt2: wdt@44e35000 {
