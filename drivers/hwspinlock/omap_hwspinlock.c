@@ -143,6 +143,12 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 	for (i = 0, hwlock = &bank->lock[0]; i < num_locks; i++, hwlock++)
 		hwlock->priv = io_base + LOCK_BASE_OFFSET + sizeof(u32) * i;
 
+	reserved_locks = of_hwspin_lock_get_num_reserved_locks(node);
+	if (reserved_locks < 0) {
+		ret = -EINVAL;
+		goto iounmap_base;
+	}
+
 	ret = hwspin_lock_register(bank, &pdev->dev, &omap_hwspinlock_ops,
 					base_id, num_locks, reserved_locks);
 	if (ret)
