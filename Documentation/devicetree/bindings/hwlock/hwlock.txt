@@ -18,6 +18,9 @@ Common properties:
 			property is needed on hwlock devices, where the number
 			of supported locks within a hwlock device cannot be
 			read from a register.
+- hwlock-reserved-locks: Number of locks to reserve for clients requiring
+			specific locks. This value cannot exceed the value of
+			hwlock-num-locks.
 - hwlock-base-id:	An unique base Id for the locks for a particular hwlock
 			device. This property is mandatory ONLY if a SoC has
 			several hwlock devices.

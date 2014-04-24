@@ -286,6 +286,31 @@ int of_hwspin_lock_get_base_id(struct device_node *dn)
 EXPORT_SYMBOL_GPL(of_hwspin_lock_get_base_id);
 
 /**
+ * of_hwspin_lock_get_num_reserved_locks() - retrieve number of reserved locks
+ * @dn: device node pointer
+ *
+ * This is an OF helper function that can be called by the underlying platform
+ * specific implementations, to retrieve the number of locks to reserve from
+ * the hwspinlock device instance's base id. The hwlock-reserved-locks DT
+ * property needs to be defined for requesting any DT-based locks.
+ *
+ * Returns a positive number of locks on success, a default value of 0 if the
+ * property is missing or an appropriate error code as returned by the OF layer
+ */
+int of_hwspin_lock_get_num_reserved_locks(struct device_node *dn)
+{
+	unsigned int val = 0;
+	int ret;
+
+	ret = of_property_read_u32(dn, "hwlock-reserved-locks", &val);
+	if (!ret || ret == -EINVAL)
+		ret = val;
+
+	return ret;
+}
+EXPORT_SYMBOL_GPL(of_hwspin_lock_get_num_reserved_locks);
+
+/**
  * of_hwspin_lock_get_num_locks() - OF helper to retrieve number of locks
  * @dn: device node pointer
  *

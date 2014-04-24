@@ -69,6 +69,7 @@ int of_hwspin_lock_simple_xlate(struct hwspinlock_device *bank,
 				const struct of_phandle_args *hwlock_spec);
 int of_hwspin_lock_get_base_id(struct device_node *dn);
 int of_hwspin_lock_get_num_locks(struct device_node *dn);
+int of_hwspin_lock_get_num_reserved_locks(struct device_node *dn);
 int hwspin_lock_register(struct hwspinlock_device *bank, struct device *dev,
 		const struct hwspinlock_ops *ops, int base_id, int num_locks,
 		int num_reserved_locks);
