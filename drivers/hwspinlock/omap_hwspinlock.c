@@ -149,6 +149,9 @@ static int omap_hwspinlock_probe(struct platform_device *pdev)
 		goto iounmap_base;
 	}
 
+	if (!reserved_locks)
+		reserved_locks = num_locks/4;
+
 	ret = hwspin_lock_register(bank, &pdev->dev, &omap_hwspinlock_ops,
 					base_id, num_locks, reserved_locks);
 	if (ret)
