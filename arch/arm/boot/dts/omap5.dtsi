@@ -1136,6 +1136,12 @@
 			>;
 		};
 	};
+
+	iommu_test {
+		compatible = "ti,omap-iommu-test";
+		iommus = <&mmu_dsp>;
+		/*iommus = <&mmu_ipu>;*/
+	};
 };
 
 &cpu_thermal {
