@@ -371,6 +371,7 @@
 			compatible = "ti,omap4-hwspinlock";
 			reg = <0x480ca000 0x1000>;
 			ti,hwmods = "spinlock";
+			hwlock-base-id = <0>;
 			#hwlock-cells = <1>;
 		};
 
