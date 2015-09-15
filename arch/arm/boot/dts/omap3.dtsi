@@ -471,7 +471,6 @@
 			reg = <0x5d000000 0x80>;
 			interrupts = <28>;
 			ti,hwmods = "mmu_iva";
-			status = "disabled";
 		};
 
 		wdt2: wdt@48314000 {
@@ -834,8 +833,8 @@
 
 	iommu_test {
 		compatible = "ti,omap-iommu-test";
-		iommus = <&mmu_isp>;
-		/*iommus = <&mmu_iva>;*/
+		/*iommus = <&mmu_isp>;*/
+		iommus = <&mmu_iva>;
 	};
 };
 
