@@ -705,6 +705,9 @@
 					      <0x20aa2400 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "k2g-pru0_0-fw";
+					interrupt-parent = <&pruss0_intc>;
+					interrupts = <16>, <17>;
+					interrupt-names = "vring", "kick";
 				};
 
 				pru0_1: pru@20ab8000 {
@@ -714,6 +717,9 @@
 					      <0x20aa4400 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "k2g-pru0_1-fw";
+					interrupt-parent = <&pruss0_intc>;
+					interrupts = <18>, <19>;
+					interrupt-names = "vring", "kick";
 				};
 
 				pruss0_mdio: mdio@20ab2400 {
@@ -796,6 +802,9 @@
 					      <0x20ae2400 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "k2g-pru1_0-fw";
+					interrupt-parent = <&pruss1_intc>;
+					interrupts = <16>, <17>;
+					interrupt-names = "vring", "kick";
 				};
 
 				pru1_1: pru@20af8000 {
@@ -805,6 +814,9 @@
 					      <0x20ae4400 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "k2g-pru1_1-fw";
+					interrupt-parent = <&pruss1_intc>;
+					interrupts = <18>, <19>;
+					interrupt-names = "vring", "kick";
 				};
 
 				pruss1_mdio: mdio@20af2400 {
