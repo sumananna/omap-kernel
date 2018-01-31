@@ -88,6 +88,8 @@ config PRUSS_REMOTEPROC
 	tristate "TI PRUSS remoteproc support"
 	depends on ARCH_DAVINCI_DA8XX || SOC_AM33XX || SOC_AM43XX || SOC_DRA7XX || ARCH_KEYSTONE
 	select MFD_SYSCON
+	select MAILBOX
+	select OMAP2PLUS_MBOX if ARCH_OMAP2PLUS
 	default n
 	help
 	  Support for TI PRU-ICSS remote processors via the remote processor
