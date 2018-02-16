@@ -9,6 +9,17 @@
 #ifndef __LINUX_PRUSS_H
 #define __LINUX_PRUSS_H
 
+#include <linux/remoteproc.h>
+
+/**
+ * enum pruss_pru_id - PRU core identifiers
+ */
+enum pruss_pru_id {
+	PRUSS_PRU0 = 0,
+	PRUSS_PRU1,
+	PRUSS_NUM_PRUS,
+};
+
 /**
  * enum pru_ctable_idx - Configurable Constant table index identifiers
  */
@@ -27,11 +38,17 @@ enum pru_ctable_idx {
 
 int pruss_intc_trigger(unsigned int irq);
 
+enum pruss_pru_id pru_rproc_get_id(struct rproc *rproc);
 int pru_rproc_set_ctable(struct rproc *rproc, enum pru_ctable_idx c, u32 addr);
 
 #else
 
 static inline int pruss_intc_trigger(unsigned int irq)
+{
+	return -ENOTSUPP;
+}
+
+static inline enum pruss_pru_id pru_rproc_get_id(struct rproc *rproc)
 {
 	return -ENOTSUPP;
 }
