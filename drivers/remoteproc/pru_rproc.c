@@ -71,6 +71,7 @@ enum pru_mem {
  * @shrdram_da: device address of shared Data RAM
  * @fw_name: name of firmware image used during loading
  * @gpmux_save: saved value for gpmux config
+ * @dt_irqs: number of irqs configured from DT
  * @lock: mutex to protect client usage
  * @dbg_single_step: debug state variable to set PRU into single step mode
  * @dbg_continuous: debug state variable to restore PRU execution mode
@@ -94,6 +95,7 @@ struct pru_rproc {
 	u32 shrdram_da;
 	const char *fw_name;
 	u8 gpmux_save;
+	int dt_irqs;
 	struct mutex lock; /* client access lock */
 	u32 dbg_single_step;
 	u32 dbg_continuous;
@@ -200,9 +202,11 @@ struct rproc *pru_rproc_get(struct device_node *np, int index)
 	struct rproc *rproc;
 	struct pru_rproc *pru;
 	struct device *dev;
-	int ret;
+	struct property *prop;
+	int ret, dt_irqs, i;
 	u32 mux;
 	const char *fw_name;
+	u32 *arr;
 
 	rproc = __pru_rproc_get(np, index);
 	if (IS_ERR(rproc))
@@ -250,8 +254,85 @@ struct rproc *pru_rproc_get(struct device_node *np, int index)
 		}
 	}
 
+	prop = of_find_property(np, "ti,pru-interrupt-map", NULL);
+	if (!prop)
+		goto skip_irq_config;
+
+	dt_irqs = of_property_count_u32_elems(np, "ti,pru-interrupt-map");
+	if (dt_irqs <= 0 || dt_irqs & 0x3) {
+		dev_err(dev, "bad interrupt map data %d, expected multiple of 4\n",
+			dt_irqs);
+		ret = -EINVAL;
+		goto err;
+	}
+
+	arr = kmalloc_array(dt_irqs, sizeof(u32), GFP_KERNEL);
+	if (!arr) {
+		ret = -ENOMEM;
+		goto err;
+	}
+
+	ret = of_property_read_u32_array(np, "ti,pru-interrupt-map",
+					 arr, dt_irqs);
+	if (ret) {
+		dev_err(dev, "failed to read pru irq map: %d\n", ret);
+		goto err_irq;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(pru->intc_config.sysev_to_ch); i++)
+		pru->intc_config.sysev_to_ch[i] = -1;
+
+	for (i = 0; i < ARRAY_SIZE(pru->intc_config.ch_to_host); i++)
+		pru->intc_config.ch_to_host[i] = -1;
+
+	for (i = 0; i < dt_irqs; i += 4) {
+		if (arr[i] != index)
+			continue;
+
+		if (arr[i + 1] < 0 ||
+		    arr[i + 1] >= MAX_PRU_SYS_EVENTS) {
+			dev_err(dev, "bad sys event %d\n", arr[i + 1]);
+			ret = -EINVAL;
+			goto err_irq;
+		}
+
+		if (arr[i + 2] < 0 ||
+		    arr[i + 2] >= MAX_PRU_CHANNELS) {
+			dev_err(dev, "bad channel %d\n", arr[i + 2]);
+			ret = -EINVAL;
+			goto err_irq;
+		}
+
+		if (arr[i + 3] < 0 ||
+		    arr[i + 3] >= MAX_PRU_HOST_INT) {
+			dev_err(dev, "bad irq %d\n", arr[i + 3]);
+				ret = -EINVAL;
+			goto err_irq;
+		}
+
+		pru->intc_config.sysev_to_ch[arr[i + 1]] = arr[i + 2];
+		dev_dbg(dev, "sysevt-to-ch[%d] -> %d\n", arr[i + 1],
+			arr[i + 2]);
+
+		pru->intc_config.ch_to_host[arr[i + 2]] = arr[i + 3];
+		dev_dbg(dev, "chnl-to-host[%d] -> %d\n", arr[i + 2],
+			arr[i + 3]);
+	}
+
+	pru->dt_irqs = dt_irqs;
+	ret = pruss_intc_configure(pru->pruss, &pru->intc_config);
+	if (ret) {
+		dev_err(dev, "failed to configure intc %d\n", ret);
+		goto err_irq;
+	}
+
+	kfree(arr);
+
+skip_irq_config:
 	return rproc;
 
+err_irq:
+	kfree(arr);
 err:
 	pru_rproc_put(rproc);
 	return ERR_PTR(ret);
@@ -279,6 +360,9 @@ void pru_rproc_put(struct rproc *rproc)
 	pru = rproc->priv;
 	if (!pru->client_np)
 		return;
+
+	if (pru->dt_irqs)
+		pruss_intc_unconfigure(pru->pruss, &pru->intc_config);
 
 	pru_rproc_set_firmware(rproc, NULL);
 	pruss_cfg_set_gpmux(pru->pruss, pru->id, pru->gpmux_save);
@@ -597,7 +681,8 @@ static int pru_rproc_start(struct rproc *rproc)
 	return 0;
 
 fail:
-	pruss_intc_unconfigure(pru->pruss, &pru->intc_config);
+	if (!pru->dt_irqs)
+		pruss_intc_unconfigure(pru->pruss, &pru->intc_config);
 	return ret;
 }
 
@@ -619,7 +704,8 @@ static int pru_rproc_stop(struct rproc *rproc)
 		free_irq(pru->irq_vring, pru);
 
 	/* undo INTC config */
-	pruss_intc_unconfigure(pru->pruss, &pru->intc_config);
+	if (!pru->dt_irqs)
+		pruss_intc_unconfigure(pru->pruss, &pru->intc_config);
 
 	return 0;
 }
@@ -722,15 +808,18 @@ static int pru_rproc_handle_vendor_rsc(struct rproc *rproc,
 				       struct fw_rsc_vendor *rsc)
 {
 	struct device *dev = rproc->dev.parent;
-	int ret = -EINVAL;
+	struct pru_rproc *pru = rproc->priv;
+	int ret = 0;
 
 	switch (rsc->u.st.st_type) {
 	case PRUSS_RSC_INTRS:
-		ret = pru_handle_vendor_intrmap(rproc, rsc);
+		if (!pru->dt_irqs)
+			ret = pru_handle_vendor_intrmap(rproc, rsc);
 		break;
 	default:
 		dev_err(dev, "%s: cannot handle unknown type %d\n", __func__,
 			rsc->u.st.st_type);
+		ret = -EINVAL;
 	}
 
 	return ret;
