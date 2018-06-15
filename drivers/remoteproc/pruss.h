@@ -80,6 +80,7 @@ struct pruss_intc_config {
  * @mem_regions: data for each of the PRUSS memory regions
  * @mem_in_use: to indicate if memory resource is in use
  * @host_mask: indicate which HOST IRQs are enabled
+ * @id: pruss instance id
  * @lock: mutex to serialize access to resources
  */
 struct pruss {
@@ -90,6 +91,7 @@ struct pruss {
 	struct pruss_mem_region mem_regions[PRUSS_MEM_MAX];
 	struct pruss_mem_region *mem_in_use[PRUSS_MEM_MAX];
 	u32 host_mask;
+	u32 id;
 	struct mutex lock; /* PRU resource lock */
 };
 
