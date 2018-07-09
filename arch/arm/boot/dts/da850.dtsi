@@ -529,6 +529,9 @@
 					      <0x37400 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "da850-pru0-fw";
+					interrupt-parent = <&pruss_intc>;
+					interrupts = <32>, <33>;
+					interrupt-names = "vring", "kick";
 				};
 
 				pru1: pru@3c000 {
@@ -538,6 +541,9 @@
 					      <0x37c00 0x100>;
 					reg-names = "iram", "control", "debug";
 					firmware-name = "da850-pru1-fw";
+					interrupt-parent = <&pruss_intc>;
+					interrupts = <34>, <35>;
+					interrupt-names = "vring", "kick";
 				};
 			};
 		};
