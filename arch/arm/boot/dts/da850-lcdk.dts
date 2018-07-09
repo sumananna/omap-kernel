@@ -346,3 +346,11 @@
 	memory-region = <&dsp_memory_region>;
 	status = "okay";
 };
+
+&pruss_soc_bus {
+	status = "okay";
+
+	pruss: pruss@30000 {
+		status = "okay";
+	};
+};
