@@ -574,6 +574,10 @@ static const struct pruss_intc_match_data k2g_pruss_intc_data = {
 
 static const struct of_device_id pruss_intc_of_match[] = {
 	{
+		.compatible = "ti,da850-pruss-intc",
+		.data = NULL,
+	},
+	{
 		.compatible = "ti,am3356-pruss-intc",
 		.data = NULL,
 	},

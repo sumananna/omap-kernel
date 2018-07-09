@@ -19,9 +19,11 @@
 /**
  * struct pruss_private_data - PRUSS driver private data
  * @has_no_sharedram: flag to indicate the absence of PRUSS Shared Data RAM
+ * @has_no_cfg_iep_mii: flag to indicate the absence of sub-modules
  */
 struct pruss_private_data {
 	bool has_no_sharedram;
+	bool has_no_cfg_iep_mii;
 };
 
 /**
@@ -39,7 +41,8 @@ struct pruss_private_data *pruss_get_private_data(struct platform_device *pdev)
 {
 	const struct pruss_match_private_data *data;
 
-	if (!of_device_is_compatible(pdev->dev.of_node, "ti,am4376-pruss"))
+	if (!of_device_is_compatible(pdev->dev.of_node, "ti,da850-pruss") &&
+	    !of_device_is_compatible(pdev->dev.of_node, "ti,am4376-pruss"))
 		return NULL;
 
 	data = of_device_get_match_data(&pdev->dev);
@@ -85,6 +88,9 @@ static int pruss_probe(struct platform_device *pdev)
 
 	pruss->dev = dev;
 
+	if (data && data->has_no_cfg_iep_mii)
+		goto skip_syscons;
+
 	np = of_get_child_by_name(node, "cfg");
 	if (!np)
 		return -ENODEV;
@@ -112,6 +118,7 @@ static int pruss_probe(struct platform_device *pdev)
 	if (IS_ERR(pruss->mii_rt))
 		return -ENODEV;
 
+skip_syscons:
 	np = of_get_child_by_name(node, "memories");
 	if (!np)
 		return -ENODEV;
@@ -170,6 +177,21 @@ static int pruss_remove(struct platform_device *pdev)
 }
 
 /* instance-specific driver private data */
+static const struct pruss_private_data da850_pruss_priv_data = {
+	.has_no_sharedram = true,
+	.has_no_cfg_iep_mii = true,
+};
+
+static const struct pruss_match_private_data da850_match_data[] = {
+	{
+		.device_name	= "1c30000.pruss",
+		.priv_data	= &da850_pruss_priv_data,
+	},
+	{
+		/* sentinel */
+	},
+};
+
 static const struct pruss_private_data am437x_pruss1_priv_data = {
 	.has_no_sharedram = false,
 };
@@ -193,6 +215,7 @@ static const struct pruss_match_private_data am437x_match_data[] = {
 };
 
 static const struct of_device_id pruss_of_match[] = {
+	{ .compatible = "ti,da850-pruss", .data = &da850_match_data, },
 	{ .compatible = "ti,am3356-pruss", .data = NULL, },
 	{ .compatible = "ti,am4376-pruss", .data = &am437x_match_data, },
 	{ .compatible = "ti,am5728-pruss", .data = NULL, },
