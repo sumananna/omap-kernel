@@ -261,6 +261,11 @@ static int pruss_soc_bus_remove(struct platform_device *pdev)
 }
 
 /* instance-specific driver private data */
+static const struct pruss_soc_bus_match_data da850_data = {
+	.has_reset = false,
+	.uses_prcm = false,
+};
+
 static const struct pruss_soc_bus_match_data am335x_data = {
 	.has_reset = true,
 	.uses_prcm = true,
@@ -282,6 +287,7 @@ static const struct pruss_soc_bus_match_data k2g_data = {
 };
 
 static const struct of_device_id pruss_soc_bus_of_match[] = {
+	{ .compatible = "ti,da850-pruss-soc-bus", .data = &da850_data, },
 	{ .compatible = "ti,am3356-pruss-soc-bus", .data = &am335x_data, },
 	{ .compatible = "ti,am4376-pruss-soc-bus", .data = &am437x_data, },
 	{ .compatible = "ti,am5728-pruss-soc-bus", .data = &am57xx_data, },

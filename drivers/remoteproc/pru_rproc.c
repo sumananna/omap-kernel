@@ -67,6 +67,7 @@ enum pru_mem {
  * @fw_name: name of firmware image used during loading
  * @dbg_single_step: debug state variable to set PRU into single step mode
  * @dbg_continuous: debug state variable to restore PRU execution mode
+ * @has_fixed_c26_27: boolean flag used to denote if C26 & C27 are programmable
  */
 struct pru_rproc {
 	int id;
@@ -82,6 +83,7 @@ struct pru_rproc {
 	const char *fw_name;
 	u32 dbg_single_step;
 	u32 dbg_continuous;
+	bool has_fixed_c26_c27;
 };
 
 static void *pru_d_da_to_va(struct pru_rproc *pru, u32 da, int len);
@@ -127,6 +129,9 @@ int pru_rproc_set_ctable(struct rproc *rproc, enum pru_ctable_idx c, u32 addr)
 	u32 mask, set;
 	u16 idx;
 	u16 idx_mask;
+
+	if (pru->has_fixed_c26_c27 && (c == PRU_C26 || c == PRU_C27))
+		return -EINVAL;
 
 	/* pointer is 16 bit and index is 8-bit so mask out the rest */
 	idx_mask = (c >= PRU_C28) ? 0xFFFF : 0xFF;
@@ -582,6 +587,9 @@ static int pru_rproc_probe(struct platform_device *pdev)
 	pru->fw_name = fw_name;
 	spin_lock_init(&pru->rmw_lock);
 
+	if (of_device_is_compatible(np, "ti,da850-pru"))
+		pru->has_fixed_c26_c27 = true;
+
 	/* XXX: get this from match data if different in the future */
 	pru->iram_da = 0;
 	pru->pdram_da = 0;
@@ -643,6 +651,7 @@ static int pru_rproc_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id pru_rproc_match[] = {
+	{ .compatible = "ti,da850-pru", },
 	{ .compatible = "ti,am3356-pru", },
 	{ .compatible = "ti,am4376-pru", },
 	{ .compatible = "ti,am5728-pru", },
