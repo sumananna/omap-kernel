@@ -403,7 +403,10 @@
 
 /* da850 currently has the most gpio pins (144) */
 #define DAVINCI_N_GPIO			144
+/* PRUSS IrqChip requires 64 events */
+#define DAVINCI_N_PRUSS			64
 /* da850 currently has the most irqs so use DA850_N_CP_INTC_IRQ */
-#define NR_IRQS				(DA850_N_CP_INTC_IRQ + DAVINCI_N_GPIO)
+#define NR_IRQS			(DA850_N_CP_INTC_IRQ + DAVINCI_N_GPIO + \
+				 DAVINCI_N_PRUSS)
 
 #endif /* __ASM_ARCH_IRQS_H */
