@@ -80,6 +80,11 @@
 				reg = <0xb032000 0x100>;
 			};
 
+			icssg0_mii_g_rt: mii_g_rt@b033000 {
+				compatible = "syscon";
+				reg = <0xb033000 0x1000>;
+			};
+
 			icssg0_intc: intc@b020000 {
 				compatible = "ti,am654-icssg-intc";
 				reg = <0xb020000 0x2000>;
@@ -177,6 +182,11 @@
 				reg = <0xb132000 0x100>;
 			};
 
+			icssg1_mii_g_rt: mii_g_rt@b133000 {
+				compatible = "syscon";
+				reg = <0xb133000 0x1000>;
+			};
+
 			icssg1_intc: intc@b120000 {
 				compatible = "ti,am654-icssg-intc";
 				reg = <0xb120000 0x2000>;
@@ -272,6 +282,11 @@
 			icssg2_mii_rt: mii_rt@b232000 {
 				compatible = "syscon";
 				reg = <0xb232000 0x100>;
+			};
+
+			icssg2_mii_g_rt: mii_g_rt@b233000 {
+				compatible = "syscon";
+				reg = <0xb233000 0x1000>;
 			};
 
 			icssg2_intc: intc@b220000 {
