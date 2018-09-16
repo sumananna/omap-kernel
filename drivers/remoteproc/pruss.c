@@ -235,13 +235,14 @@ static int pruss_set_id(struct pruss *pruss)
 {
 	int i;
 	int ret = -EINVAL;
-	static const phys_addr_t addrs[] = { 0x4a300000,
+	static const phys_addr_t addrs[] = { 0x01c30000,
+					     0x4a300000,
 					     0x54400000, 0x54440000,
 					     0x4b200000, 0x4b280000,
 					     0x20a80000, 0x20ac0000,
 					     0x0b000000, 0x0b100000,
 					     0x0b200000, };
-	static const int ids[] = { 0, 1, 0, 1, 2, 0, 1, 0, 1, 2 };
+	static const int ids[] = { 0, 0, 1, 0, 1, 2, 0, 1, 0, 1, 2 };
 
 	for (i = 0; i < ARRAY_SIZE(addrs); i++) {
 		if (pruss->mem_regions[0].pa == addrs[i]) {
