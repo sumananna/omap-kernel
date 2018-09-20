@@ -43,6 +43,7 @@ nodes of this node.
 Required Properties:
 --------------------
 - compatible     : should be one of,
+                       "ti,da850-pruss-soc-bus" for OMAP-L13x/AM18x/DA850 SoCs
                        "ti,am3356-pruss-soc-bus" for AM335x family of SoCs
                        "ti,am4376-pruss-soc-bus" for AM437x family of SoCs
                        "ti,am5728-pruss-soc-bus" for AM57xx family of SoCs
@@ -59,7 +60,8 @@ SoC-specific Required properties:
 The following are mandatory properties for all OMAP-architecture based SoCs:
 - ti,hwmods      : name of the hwmod associated with the PRUSS instance
 
-The following properties are _required_ only for Keystone 2 66AK2G SoCs only:
+The following properties are _required_ only for Keystone 2 66AK2G SoCs and
+Davinci OMAP-L13x/AM18x/DA850 SoCs only:
 - power-domains  : Should contain a phandle to a PM domain provider node and an
                    args specifier containing the PRUSS SCI device id value. This
                    property is as per the binding,
@@ -76,6 +78,7 @@ within this parent PRUSS node.
 Required Properties:
 --------------------
 - compatible     : should be one of,
+                       "ti,da850-pruss" for OMAP-L13x/AM18x/DA850 SoCs
                        "ti,am3356-pruss" for AM335x family of SoCs
                        "ti,am4376-pruss" for AM437x family of SoCs
                        "ti,am5728-pruss" for AM57xx family of SoCs
@@ -140,6 +143,7 @@ external interrupt controllers including the MPU.
 Required Properties:
 --------------------
 - compatible           : should be one of,
+                             "ti,da850-pruss-intc" for OMAP-L13x/AM18x/DA850 SoCs
                              "ti,am3356-pruss-intc" for AM335x family of SoCs
                              "ti,am4376-pruss-intc" for AM437x family of SoCs
                              "ti,am5728-pruss-intc" for AM57xx family of SoCs
@@ -162,6 +166,7 @@ can optionally be rendered inactive by using the standard DT string property,
 Required Properties:
 --------------------
 - compatible     : should be
+                       "ti,da850-pru" for OMAP-L13x/AM18x/DA850 SoCs
                        "ti,am3356-pru" for AM335x family of SoCs
                        "ti,am4376-pru" for AM437x family of SoCs
                        "ti,am5728-pru" for AM57xx family of SoCs
