@@ -217,8 +217,7 @@ static void
 rpmsg_sg_init(struct virtproc_info *vrp, struct scatterlist *sg,
 	      void *cpu_addr, unsigned int len)
 {
-	if (IS_BUILTIN(CONFIG_PHYS_ADDR_T_64BIT) &&
-	    !IS_BUILTIN(CONFIG_ARCH_DMA_ADDR_T_64BIT))  {
+	if (of_machine_is_compatible("ti,keystone")) {
 		unsigned long offset = cpu_addr - vrp->rbufs;
 		dma_addr_t dma_addr = vrp->bufs_dma + offset;
 
