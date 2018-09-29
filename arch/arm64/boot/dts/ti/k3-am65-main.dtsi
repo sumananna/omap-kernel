@@ -32,7 +32,7 @@
 	icssg_soc_bus0: pruss_soc_bus@b026004 {
 		compatible = "ti,am654-icssg-soc-bus";
 		reg = <0x0b026004 0x4>;
-		power-domains = <&k3_pds 62>;
+		/*power-domains = <&k3_pds 62>;*/
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
@@ -144,7 +144,7 @@
 			icssg0_mdio: mdio@b032400 {
 				compatible = "ti,davinci_mdio";
 				reg = <0xb032400 0x100>;
-				clocks = <&k3_clks 62 3>;
+				/*clocks = <&k3_clks 62 3>;*/
 				clock-names = "fck";
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -157,7 +157,7 @@
 	icssg_soc_bus1: pruss_soc_bus@b126004 {
 		compatible = "ti,am654-icssg-soc-bus";
 		reg = <0x0b126004 0x4>;
-		power-domains = <&k3_pds 63>;
+		/*power-domains = <&k3_pds 63>;*/
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
@@ -269,7 +269,7 @@
 			icssg1_mdio: mdio@b132400 {
 				compatible = "ti,davinci_mdio";
 				reg = <0xb132400 0x100>;
-				clocks = <&k3_clks 63 3>;
+				/*clocks = <&k3_clks 63 3>;*/
 				clock-names = "fck";
 				#address-cells = <1>;
 				#size-cells = <0>;
@@ -282,7 +282,7 @@
 	icssg_soc_bus2: pruss_soc_bus@b226004 {
 		compatible = "ti,am654-icssg-soc-bus";
 		reg = <0x0b226004 0x4>;
-		power-domains = <&k3_pds 64>;
+		/*power-domains = <&k3_pds 64>;*/
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
@@ -394,7 +394,7 @@
 			icssg2_mdio: mdio@b232400 {
 				compatible = "ti,davinci_mdio";
 				reg = <0xb232400 0x100>;
-				clocks = <&k3_clks 64 3>;
+				/*clocks = <&k3_clks 64 3>;*/
 				clock-names = "fck";
 				#address-cells = <1>;
 				#size-cells = <0>;
